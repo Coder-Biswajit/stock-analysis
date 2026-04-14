@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — StockPulse</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #185FA5;
+      --blue-mid: #378ADD;
+      --blue-light: #E6F1FB;
+      --green: #1D9E75;
+      --green-light: #E1F5EE;
+      --red: #E24B4A;
+      --red-light: #FCEBEB;
+      --amber: #BA7517;
+      --amber-light: #FAEEDA;
+      --purple: #534AB7;
+      --purple-light: #EEEDFE;
+      --text: #1a1a2e;
+      --text-muted: #6b7280;
+      --text-hint: #9ca3af;
+      --bg: #f8f9fb;
+      --surface: #ffffff;
+      --border: rgba(0,0,0,0.08);
+      --radius: 14px;
+      --radius-sm: 8px;
+      --sidebar-w: 240px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; height: 100vh;
+      z-index: 50; padding: 1.5rem 1rem;
+    }
+
+    .sidebar-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px; color: var(--text);
+      text-decoration: none; padding: 0 0.5rem;
+      margin-bottom: 2rem;
+    }
+    .sidebar-logo-icon {
+      width: 32px; height: 32px; background: var(--blue);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sidebar-logo-icon svg { width: 18px; height: 18px; }
+
+    .sidebar-section-label {
+      font-size: 10px; font-weight: 600; color: var(--text-hint);
+      text-transform: uppercase; letter-spacing: 0.1em;
+      padding: 0 0.75rem; margin-bottom: 6px;
+    }
+
+    .sidebar-nav { display: flex; flex-direction: column; gap: 2px; margin-bottom: 1.5rem; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: var(--radius-sm);
+      font-size: 14px; font-weight: 500; color: var(--text-muted);
+      text-decoration: none; cursor: pointer; border: none; background: none;
+      width: 100%; transition: background 0.15s, color 0.15s;
+    }
+    .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+    .nav-item:hover { background: var(--bg); color: var(--text); }
+    .nav-item.active { background: var(--blue-light); color: var(--blue); }
+    .nav-item.active svg { stroke: var(--blue); }
+
+    .sidebar-spacer { flex: 1; }
+
+    .sidebar-user {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      border-top: 1px solid var(--border); margin: 0 -1rem;
+      padding-left: 1.5rem; padding-right: 1.5rem;
+    }
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--blue-light);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600; color: var(--blue); flex-shrink: 0;
+    }
+    .user-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .user-role { font-size: 11px; color: var(--text-hint); }
+    .logout-btn {
+      margin-left: auto; background: none; border: none;
+      color: var(--text-hint); cursor: pointer; padding: 4px;
+      border-radius: 6px; transition: color 0.15s, background 0.15s;
+    }
+    .logout-btn:hover { color: var(--red); background: var(--red-light); }
+    .logout-btn svg { width: 16px; height: 16px; display: block; }
+
+    /* ── MAIN ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1; padding: 2rem 2.5rem;
+      max-width: 1100px;
+    }
+
+    /* Top bar */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+    .topbar-left h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 26px; color: var(--text); margin-bottom: 2px;
+    }
+    .topbar-left p { font-size: 14px; color: var(--text-muted); }
+
+    .badge-live {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--green-light); color: var(--green);
+      border-radius: 100px; padding: 5px 14px;
+      font-size: 12px; font-weight: 600;
+    }
+    .badge-live-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--green);
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* Summary cards */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px; margin-bottom: 2rem;
+    }
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .summary-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+    .summary-label { font-size: 11px; font-weight: 600; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .summary-val { font-size: 24px; font-weight: 600; color: var(--text); line-height: 1; }
+    .summary-change { font-size: 12px; font-weight: 500; margin-top: 6px; }
+    .up { color: var(--green); }
+    .down { color: var(--red); }
+
+    /* Section header */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-size: 16px; font-weight: 600; color: var(--text);
+    }
+
+    /* Add stock form */
+    .add-form-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem; margin-bottom: 1.75rem;
+    }
+    .add-form-card h3 {
+      font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px;
+    }
+    .add-form-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 1.25rem; }
+
+    .add-form-row { display: flex; gap: 10px; }
+    .input-wrap { position: relative; flex: 1; }
+    .input-icon {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      color: var(--text-hint); pointer-events: none;
+    }
+    .input-icon svg { width: 16px; height: 16px; display: block; }
+    .add-form-row input[type="text"] {
+      width: 100%; padding: 10px 14px 10px 38px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 14px; font-family: 'DM Sans', sans-serif;
+      color: var(--text); background: var(--bg);
+      outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .add-form-row input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(24,95,165,0.1);
+      background: #fff;
+    }
+    .add-form-row input::placeholder { color: var(--text-hint); }
+
+    .btn-add {
+      padding: 10px 22px;
+      background: var(--blue); color: #fff;
+      border: none; border-radius: var(--radius-sm);
+      font-size: 14px; font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer; white-space: nowrap;
+      display: flex; align-items: center; gap: 7px;
+      transition: background 0.15s;
+    }
+    .btn-add:hover { background: #0C447C; }
+    .btn-add svg { width: 16px; height: 16px; }
+
+    /* Watchlist table */
+    .watchlist-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .watchlist-table { width: 100%; border-collapse: collapse; }
+    .watchlist-table th {
+      text-align: left; padding: 12px 20px;
+      font-size: 11px; font-weight: 600; color: var(--text-hint);
+      text-transform: uppercase; letter-spacing: 0.07em;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .watchlist-table th:last-child { text-align: right; }
+
+    .watchlist-table td {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px; color: var(--text);
+      vertical-align: middle;
+    }
+    .watchlist-table tr:last-child td { border-bottom: none; }
+    .watchlist-table tr { transition: background 0.1s; }
+    .watchlist-table tr:hover td { background: var(--bg); }
+
+    .ticker-cell { display: flex; align-items: center; gap: 12px; }
+    .ticker-dot {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--blue-light);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: var(--blue);
+      flex-shrink: 0; letter-spacing: 0.03em;
+    }
+    .ticker-symbol { font-weight: 600; font-size: 14px; color: var(--text); }
+    .ticker-exchange { font-size: 11px; color: var(--text-hint); margin-top: 1px; }
+
+    .ticker-link { text-decoration: none; color: inherit; }
+    .ticker-link:hover .ticker-symbol { color: var(--blue); text-decoration: underline; }
+
+    .actions-cell { text-align: right; }
+    .btn-view {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 14px; border-radius: 6px;
+      background: var(--blue-light); color: var(--blue);
+      font-size: 12px; font-weight: 600;
+      text-decoration: none; border: none; cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: background 0.15s;
+      margin-right: 6px;
+    }
+    .btn-view:hover { background: #B5D4F4; }
+    .btn-view svg { width: 13px; height: 13px; }
+
+    .btn-remove {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 14px; border-radius: 6px;
+      background: var(--red-light); color: var(--red);
+      font-size: 12px; font-weight: 600;
+      border: none; cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: background 0.15s;
+    }
+    .btn-remove:hover { background: #F7C1C1; }
+    .btn-remove svg { width: 13px; height: 13px; }
+
+    /* Empty state */
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 4rem 2rem; text-align: center;
+    }
+    .empty-icon {
+      width: 64px; height: 64px; border-radius: 16px;
+      background: var(--bg); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .empty-icon svg { width: 28px; height: 28px; color: var(--text-hint); }
+    .empty-state h3 { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .empty-state p { font-size: 14px; color: var(--text-muted); max-width: 280px; line-height: 1.6; }
+
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; padding: 1.5rem 1rem; }
+      .add-form-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <a href="/" class="sidebar-logo">
+    <div class="sidebar-logo-icon">
+      <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="2,13 6,8 10,11 16,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    StockPulse
+  </a>
+
+  <div class="sidebar-section-label">Menu</div>
+  <nav class="sidebar-nav">
+    <a href="/dashboard" class="nav-item active">
+      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="6" height="6" rx="1.5"/>
+        <rect x="10" y="2" width="6" height="6" rx="1.5"/>
+        <rect x="2" y="10" width="6" height="6" rx="1.5"/>
+        <rect x="10" y="10" width="6" height="6" rx="1.5"/>
+      </svg>
+      Dashboard
+    </a>
+    <a href="#" class="nav-item">
+      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="2,13 6,8 10,11 16,3"/>
+      </svg>
+      Markets
+    </a>
+    <a href="#" class="nav-item">
+      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="9" cy="9" r="7"/>
+        <polyline points="9,5.5 9,9 11.5,11"/>
+      </svg>
+      Alerts
+    </a>
+    <a href="#" class="nav-item">
+      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="3" width="14" height="12" rx="2"/>
+        <line x1="6" y1="7" x2="12" y2="7"/>
+        <line x1="6" y1="10" x2="10" y2="10"/>
+      </svg>
+      News
+    </a>
+    <a href="#" class="nav-item">
+      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="9" cy="7" r="3.5"/>
+        <path d="M2.5 16c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5"/>
+      </svg>
+      Profile
+    </a>
+  </nav>
+
+  <div class="sidebar-spacer"></div>
+
+  <div class="sidebar-user">
+    <div class="user-avatar">{{ session['username'][:2] | upper }}</div>
+    <div>
+      <div class="user-name">{{ session['username'] }}</div>
+      <div class="user-role">Investor</div>
+    </div>
+    <a href="/logout" class="logout-btn" title="Logout">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/>
+        <polyline points="10,5 13,8 10,11"/>
+        <line x1="13" y1="8" x2="5" y2="8"/>
+      </svg>
+    </a>
+  </div>
+</aside>
+
+<!-- ── MAIN CONTENT ── -->
+<main class="main">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Good day, {{ session['username'] }} 👋</h1>
+      <p>Here's what's happening with your watchlist today.</p>
+    </div>
+    <div class="badge-live">
+      <div class="badge-live-dot"></div>
+      Live
+    </div>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="summary-label">Watchlist</div>
+      <div class="summary-val">{{ tickers|length }}</div>
+      <div class="summary-change" style="color:var(--text-muted);">stocks tracked</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">S&amp;P 500</div>
+      <div class="summary-val">5,842</div>
+      <div class="summary-change up">▲ +0.82% today</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">NASDAQ</div>
+      <div class="summary-val">18,291</div>
+      <div class="summary-change up">▲ +1.14% today</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Market status</div>
+      <div class="summary-val" style="font-size:16px;margin-top:4px;">Open</div>
+      <div class="summary-change up">● Markets are live</div>
+    </div>
+  </div>
+
+  <!-- Add Stock -->
+  <div class="add-form-card">
+    <h3>Add to Watchlist</h3>
+    <p>Enter a stock ticker symbol to start tracking it. Use the exchange suffix for accurate data (e.g. RELIANCE.NS, AAPL, TSLA).</p>
+    <form action="/add_stock" method="POST">
+      <div class="add-form-row">
+        <div class="input-wrap">
+          <span class="input-icon">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="6.5" cy="6.5" r="4.5"/>
+              <line x1="10" y1="10" x2="14" y2="14"/>
+            </svg>
+          </span>
+          <input type="text" name="ticker" placeholder="e.g. RELIANCE.NS, AAPL, INFY.NS" required autocomplete="off" autocapitalize="characters"/>
+        </div>
+        <button type="submit" class="btn-add">
+          <svg viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+            <line x1="8" y1="3" x2="8" y2="13"/>
+            <line x1="3" y1="8" x2="13" y2="8"/>
+          </svg>
+          Add to watchlist
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Watchlist -->
+  <div class="section-header">
+    <div class="section-title">Your Watchlist</div>
+  </div>
+
+  <div class="watchlist-card">
+    {% if tickers %}
+    <table class="watchlist-table">
+      <thead>
+        <tr>
+          <th>Ticker</th>
+          <th>Exchange</th>
+          <th>Added</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in tickers %}
+        <tr>
+          <td>
+            <a href="/stock/{{ item.ticker }}" class="ticker-link">
+              <div class="ticker-cell">
+                <div class="ticker-dot">{{ item.ticker[:4] }}</div>
+                <div>
+                  <div class="ticker-symbol">{{ item.ticker }}</div>
+                  <div class="ticker-exchange">Click to view chart</div>
+                </div>
+              </div>
+            </a>
+          </td>
+          <td style="color:var(--text-muted); font-size:13px;">
+            {% if ".NS" in item.ticker %}NSE India
+            {% elif ".BO" in item.ticker %}BSE India
+            {% else %}NASDAQ / NYSE
+            {% endif %}
+          </td>
+          <td style="color:var(--text-muted); font-size:13px;">Today</td>
+          <td class="actions-cell">
+            <a href="/stock/{{ item.ticker }}" class="btn-view">
+              <svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 6.5s2.3-4.5 5.5-4.5S12 6.5 12 6.5s-2.3 4.5-5.5 4.5S1 6.5 1 6.5z"/>
+                <circle cx="6.5" cy="6.5" r="1.8"/>
+              </svg>
+              View
+            </a>
+            <form action="/remove_stock" method="POST" style="display:inline;">
+              <input type="hidden" name="ticker" value="{{ item.ticker }}">
+              <button type="submit" class="btn-remove">
+                <svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="3" y1="3" x2="10" y2="10"/>
+                  <line x1="10" y1="3" x2="3" y2="10"/>
+                </svg>
+                Remove
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+          <polyline points="3,20 9,12 14,16 21,7"/>
+          <line x1="21" y1="7" x2="21" y2="12"/>
+          <line x1="21" y1="7" x2="16" y2="7"/>
+        </svg>
+      </div>
+      <h3>Your watchlist is empty</h3>
+      <p>Search for a stock ticker above and add it to start tracking prices and movements.</p>
+    </div>
+    {% endif %}
+  </div>
+
+</main>
+
+</body>
+</html>

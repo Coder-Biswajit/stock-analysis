@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StockPulse — Invest Smarter</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #185FA5;
+      --blue-light: #E6F1FB;
+      --blue-mid: #378ADD;
+      --green: #1D9E75;
+      --green-light: #E1F5EE;
+      --amber: #BA7517;
+      --amber-light: #FAEEDA;
+      --purple: #534AB7;
+      --purple-light: #EEEDFE;
+      --text: #1a1a2e;
+      --text-muted: #6b7280;
+      --text-hint: #9ca3af;
+      --bg: #f8f9fb;
+      --surface: #ffffff;
+      --border: rgba(0,0,0,0.08);
+      --radius: 14px;
+      --radius-sm: 8px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── NAVBAR ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem;
+      height: 64px;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px; color: var(--text); text-decoration: none;
+    }
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: var(--blue);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-icon svg { width: 20px; height: 20px; }
+
+    .nav-links { display: flex; gap: 6px; align-items: center; }
+    .nav-link {
+      padding: 7px 16px; border-radius: var(--radius-sm);
+      font-size: 14px; font-weight: 500; color: var(--text-muted);
+      text-decoration: none; border: none; background: none; cursor: pointer;
+      transition: color 0.15s, background 0.15s;
+    }
+    .nav-link:hover { background: var(--bg); color: var(--text); }
+
+    .btn {
+      padding: 9px 22px;
+      border-radius: var(--radius-sm);
+      font-size: 14px; font-weight: 500;
+      cursor: pointer; border: 1px solid var(--border);
+      background: var(--surface); color: var(--text);
+      text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+      transition: all 0.15s;
+    }
+    .btn:hover { background: var(--bg); }
+    .btn-primary {
+      background: var(--blue); color: #fff; border-color: var(--blue);
+    }
+    .btn-primary:hover { background: #0C447C; border-color: #0C447C; }
+    .btn-lg { padding: 13px 30px; font-size: 15px; border-radius: 10px; }
+    .btn-outline-lg {
+      padding: 13px 30px; font-size: 15px; border-radius: 10px;
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-outline-lg:hover { background: var(--surface); }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: 900px; margin: 0 auto;
+      padding: 80px 2rem 60px;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--blue-light); color: var(--blue);
+      border-radius: 100px; padding: 5px 16px;
+      font-size: 13px; font-weight: 500; margin-bottom: 1.75rem;
+      animation: fadeDown 0.5s ease both;
+    }
+    .badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); }
+
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(36px, 5vw, 58px);
+      line-height: 1.15; color: var(--text);
+      margin-bottom: 1.25rem;
+      animation: fadeDown 0.55s 0.05s ease both;
+    }
+    h1 .accent { color: var(--blue); }
+
+    .hero-sub {
+      font-size: 17px; color: var(--text-muted); line-height: 1.7;
+      max-width: 500px; margin: 0 auto 2.5rem;
+      animation: fadeDown 0.55s 0.1s ease both;
+    }
+
+    .cta-row {
+      display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+      margin-bottom: 3.5rem;
+      animation: fadeDown 0.55s 0.15s ease both;
+    }
+
+    /* ── STATS ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px; max-width: 780px; margin: 0 auto 5rem;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      text-align: left;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.07); }
+
+    .stat-label { font-size: 12px; color: var(--text-hint); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .stat-val { font-size: 26px; font-weight: 600; color: var(--text); line-height: 1; }
+    .stat-change { font-size: 12px; margin-top: 6px; font-weight: 500; }
+    .up { color: var(--green); }
+    .down { color: #E24B4A; }
+
+    .mini-bar { display: flex; align-items: flex-end; gap: 3px; height: 36px; margin-top: 10px; }
+    .mini-bar span { flex: 1; border-radius: 3px 3px 0 0; }
+
+    /* ── SECTION HEADING ── */
+    .section { max-width: 900px; margin: 0 auto; padding: 0 2rem 5rem; }
+    .section-label { font-size: 12px; color: var(--blue); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+    .section-title { font-family: 'DM Serif Display', serif; font-size: 32px; color: var(--text); margin-bottom: 0.5rem; }
+    .section-sub { font-size: 15px; color: var(--text-muted); max-width: 460px; line-height: 1.6; margin-bottom: 2.5rem; }
+
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.07); }
+
+    .feature-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px;
+    }
+    .feature-icon svg { width: 20px; height: 20px; }
+    .feature-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .feature-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+    /* ── AUTH CARDS ── */
+    .auth-section {
+      background: linear-gradient(135deg, #f0f6ff 0%, #fff 50%, #f0faf6 100%);
+      border-top: 1px solid var(--border);
+      padding: 5rem 2rem;
+    }
+    .auth-inner { max-width: 900px; margin: 0 auto; }
+    .auth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 640px; margin: 0 auto; }
+
+    @media(max-width: 600px) { .auth-grid { grid-template-columns: 1fr; } }
+
+    .auth-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+    }
+    .auth-card.featured { border: 2px solid var(--blue); }
+    .auth-tag {
+      display: inline-block;
+      background: var(--blue-light); color: var(--blue);
+      border-radius: 100px; font-size: 11px; font-weight: 600;
+      padding: 3px 12px; margin-bottom: 1rem;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .auth-card h3 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+    .auth-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.5; }
+    .auth-card .btn { width: 100%; justify-content: center; }
+
+    .auth-list { list-style: none; margin-bottom: 1.5rem; }
+    .auth-list li {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--text-muted); padding: 4px 0;
+    }
+    .auth-list li::before {
+      content: ''; display: block;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--green-light);
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 8l2.5 2.5L12 5.5' stroke='%231D9E75' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E");
+      background-size: contain; flex-shrink: 0;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center; padding: 2rem;
+      border-top: 1px solid var(--border);
+      font-size: 13px; color: var(--text-hint);
+    }
+    footer a { color: var(--blue); text-decoration: none; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="/" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="2,15 7,9 11,12 18,4" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    StockPulse
+  </a>
+  <div class="nav-links">
+    <a href="#features" class="nav-link">Features</a>
+    <a href="#markets" class="nav-link">Markets</a>
+    <a href="#get-started" class="nav-link">Pricing</a>
+    <a href="/login" class="btn">Sign in</a>
+    <a href="/register" class="btn btn-primary">Get started →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="badge"><div class="badge-dot"></div> Live market data — updated every second</div>
+  <h1>Track, Analyze &amp;<br><span class="accent">Invest Smarter</span></h1>
+  <p class="hero-sub">Your all-in-one platform to monitor portfolios, explore stock trends, and make confident investment decisions — no finance degree required.</p>
+  <div class="cta-row">
+    <a href="/register" class="btn btn-primary btn-lg">Create free account →</a>
+    <a href="/login" class="btn-outline-lg btn">Sign in to your account</a>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-grid" id="markets">
+  <div class="stat-card">
+    <div class="stat-label">S&amp;P 500</div>
+    <div class="stat-val">5,842</div>
+    <div class="stat-change up">▲ +0.82%</div>
+    <div class="mini-bar">
+      <span style="height:55%;background:#B5D4F4"></span>
+      <span style="height:65%;background:#B5D4F4"></span>
+      <span style="height:50%;background:#B5D4F4"></span>
+      <span style="height:80%;background:#B5D4F4"></span>
+      <span style="height:70%;background:#B5D4F4"></span>
+      <span style="height:95%;background:#378ADD"></span>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">NASDAQ</div>
+    <div class="stat-val">18,291</div>
+    <div class="stat-change up">▲ +1.14%</div>
+    <div class="mini-bar">
+      <span style="height:60%;background:#9FE1CB"></span>
+      <span style="height:45%;background:#9FE1CB"></span>
+      <span style="height:70%;background:#9FE1CB"></span>
+      <span style="height:65%;background:#9FE1CB"></span>
+      <span style="height:80%;background:#9FE1CB"></span>
+      <span style="height:100%;background:#1D9E75"></span>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">DOW JONES</div>
+    <div class="stat-val">42,104</div>
+    <div class="stat-change down">▼ −0.23%</div>
+    <div class="mini-bar">
+      <span style="height:80%;background:#FBBCBC"></span>
+      <span style="height:90%;background:#FBBCBC"></span>
+      <span style="height:70%;background:#FBBCBC"></span>
+      <span style="height:60%;background:#FBBCBC"></span>
+      <span style="height:55%;background:#FBBCBC"></span>
+      <span style="height:50%;background:#E24B4A"></span>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Active users</div>
+    <div class="stat-val">250K+</div>
+    <div class="stat-change up">▲ +12% this month</div>
+    <div class="mini-bar">
+      <span style="height:40%;background:#CECBF6"></span>
+      <span style="height:55%;background:#CECBF6"></span>
+      <span style="height:65%;background:#CECBF6"></span>
+      <span style="height:75%;background:#CECBF6"></span>
+      <span style="height:88%;background:#CECBF6"></span>
+      <span style="height:100%;background:#534AB7"></span>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-label">Why StockPulse</div>
+  <div class="section-title">Everything you need to invest well</div>
+  <p class="section-sub">Powerful tools designed for both beginners and experienced traders — all in one clean interface.</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon" style="background:var(--blue-light)">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polyline points="2,15 7,9 11,12 18,4" stroke="#185FA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="feature-title">Live charts</div>
+      <div class="feature-desc">Real-time candlestick and line charts with 20+ technical indicators.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:var(--green-light)">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="11" width="4" height="7" rx="1" fill="#1D9E75"/>
+          <rect x="9" y="7" width="4" height="11" rx="1" fill="#1D9E75"/>
+          <rect x="15" y="3" width="4" height="15" rx="1" fill="#1D9E75"/>
+        </svg>
+      </div>
+      <div class="feature-title">Portfolio tracker</div>
+      <div class="feature-desc">Monitor holdings, P&amp;L, dividends, and allocation in one dashboard.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:var(--amber-light)">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="10" cy="10" r="7.5" stroke="#BA7517" stroke-width="2"/>
+          <polyline points="10,6 10,10 13,12.5" stroke="#BA7517" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="feature-title">Price alerts</div>
+      <div class="feature-desc">Set target prices and get notified instantly via email or push.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:var(--purple-light)">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="10" cy="8" r="4" stroke="#534AB7" stroke-width="2"/>
+          <path d="M3 18c0-3.9 3.1-6.5 7-6.5s7 2.6 7 6.5" stroke="#534AB7" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="feature-title">Watchlists</div>
+      <div class="feature-desc">Build and share personalized watchlists with your community.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#FAECE7">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="14" height="14" rx="2" stroke="#D85A30" stroke-width="2"/>
+          <line x1="7" y1="7" x2="13" y2="7" stroke="#D85A30" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="7" y1="10" x2="13" y2="10" stroke="#D85A30" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="7" y1="13" x2="10" y2="13" stroke="#D85A30" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="feature-title">Market news</div>
+      <div class="feature-desc">Curated financial news and earnings calendar for your stocks.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#EAF3DE">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 3L12.5 8H17.5L13.5 11.5L15 16.5L10 13.5L5 16.5L6.5 11.5L2.5 8H7.5Z" stroke="#3B6D11" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="feature-title">AI insights</div>
+      <div class="feature-desc">Smart summaries and sentiment analysis powered by AI models.</div>
+    </div>
+  </div>
+</section>
+
+<!-- AUTH / GET STARTED -->
+<div class="auth-section" id="get-started">
+  <div class="auth-inner">
+    <div style="text-align:center; margin-bottom:2.5rem;">
+      <div class="section-label" style="margin-bottom:8px;">Get started today</div>
+      <div class="section-title">Your account is one click away</div>
+      <p class="section-sub" style="margin: 0.5rem auto 0;">Join 250,000+ investors already using StockPulse to grow their wealth.</p>
+    </div>
+    <div class="auth-grid">
+      <div class="auth-card featured">
+        <div class="auth-tag">New user</div>
+        <h3>Create an account</h3>
+        <p>Start for free. No credit card required. Get full access to all features for 30 days.</p>
+        <ul class="auth-list">
+          <li>Real-time stock data</li>
+          <li>Up to 5 watchlists</li>
+          <li>Portfolio analytics</li>
+          <li>Price alerts</li>
+        </ul>
+        <a href="/register" class="btn btn-primary">Register now →</a>
+      </div>
+      <div class="auth-card">
+        <div class="auth-tag" style="background:var(--green-light);color:var(--green);">Returning</div>
+        <h3>Welcome back</h3>
+        <p>Sign in to access your portfolio, watchlists, and personalized market alerts.</p>
+        <ul class="auth-list">
+          <li>Sync across devices</li>
+          <li>Resume your watchlists</li>
+          <li>View portfolio history</li>
+          <li>Manage alerts</li>
+        </ul>
+        <a href="/login" class="btn">Sign in to account</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p style="margin-bottom:8px;">
+    <a href="#">Privacy</a> &nbsp;&middot;&nbsp;
+    <a href="#">Terms</a> &nbsp;&middot;&nbsp;
+    <a href="#">Support</a>
+  </p>
+  &copy; 2026 StockPulse. Built for investors, by investors.
+</footer>
+
+</body>
+</html>

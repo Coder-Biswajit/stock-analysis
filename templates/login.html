@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign In — StockPulse</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #185FA5;
+      --blue-mid: #378ADD;
+      --blue-light: #E6F1FB;
+      --green: #1D9E75;
+      --green-light: #E1F5EE;
+      --text: #1a1a2e;
+      --text-muted: #6b7280;
+      --text-hint: #9ca3af;
+      --bg: #f8f9fb;
+      --surface: #ffffff;
+      --border: rgba(0,0,0,0.1);
+      --border-focus: #185FA5;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --danger: #E24B4A;
+      --danger-light: #FCEBEB;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* ── LEFT PANEL ── */
+    .left-panel {
+      background: var(--blue);
+      padding: 3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      width: 420px; height: 420px; border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      top: -120px; right: -120px;
+    }
+    .left-panel::after {
+      content: '';
+      position: absolute;
+      width: 300px; height: 300px; border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      bottom: -80px; left: -60px;
+    }
+
+    .panel-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px; color: #fff;
+      text-decoration: none; position: relative; z-index: 1;
+    }
+    .panel-logo-icon {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .panel-logo-icon svg { width: 20px; height: 20px; }
+
+    .panel-content { position: relative; z-index: 1; }
+    .panel-content h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 34px; color: #fff;
+      line-height: 1.2; margin-bottom: 1rem;
+    }
+    .panel-content p {
+      font-size: 15px; color: rgba(255,255,255,0.7);
+      line-height: 1.7; margin-bottom: 2.5rem;
+    }
+
+    /* Ticker strip */
+    .ticker-cards { display: flex; flex-direction: column; gap: 12px; }
+    .ticker-card {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .ticker-left { display: flex; align-items: center; gap: 12px; }
+    .ticker-avatar {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600; color: #fff;
+    }
+    .ticker-name { font-size: 14px; font-weight: 600; color: #fff; }
+    .ticker-full { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 1px; }
+    .ticker-right { text-align: right; }
+    .ticker-price { font-size: 14px; font-weight: 600; color: #fff; }
+    .ticker-change { font-size: 12px; margin-top: 2px; font-weight: 500; }
+    .up   { color: #5DCAA5; }
+    .down { color: #F0997B; }
+
+    .mini-spark { display: flex; align-items: flex-end; gap: 2px; height: 28px; margin-left: 14px; }
+    .mini-spark span { width: 4px; border-radius: 2px 2px 0 0; }
+
+    .panel-footer {
+      font-size: 13px; color: rgba(255,255,255,0.4);
+      position: relative; z-index: 1;
+    }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel {
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 3rem 2rem;
+      background: var(--surface);
+    }
+
+    .form-box { width: 100%; max-width: 400px; }
+
+    .form-header { margin-bottom: 2rem; }
+    .form-header .welcome-back {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--green-light); color: var(--green);
+      border-radius: 100px; padding: 4px 14px;
+      font-size: 12px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      margin-bottom: 14px;
+    }
+    .form-header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px; color: var(--text); margin-bottom: 6px;
+    }
+    .form-header p { font-size: 14px; color: var(--text-muted); }
+
+    /* Django error messages */
+    .error-banner {
+      display: flex; align-items: center; gap: 10px;
+      background: #FCEBEB; border: 1px solid #F7C1C1;
+      border-radius: var(--radius-sm);
+      padding: 12px 16px; margin-bottom: 1.5rem;
+      font-size: 13px; color: var(--danger);
+    }
+    .error-banner svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label {
+      display: block; font-size: 13px; font-weight: 500;
+      color: var(--text); margin-bottom: 6px;
+    }
+
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--text-hint); pointer-events: none;
+    }
+    .input-icon svg { width: 18px; height: 18px; display: block; }
+
+    .form-group input[type="text"],
+    .form-group input[type="password"] {
+      width: 100%;
+      padding: 11px 14px 11px 42px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 14px; font-family: 'DM Sans', sans-serif;
+      color: var(--text); background: var(--bg);
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+    }
+    .form-group input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(24,95,165,0.1);
+      background: #fff;
+    }
+    .form-group input::placeholder { color: var(--text-hint); }
+
+    .toggle-pass {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: var(--text-hint); padding: 0;
+      transition: color 0.15s;
+    }
+    .toggle-pass:hover { color: var(--text-muted); }
+    .toggle-pass svg { width: 18px; height: 18px; display: block; }
+
+    .form-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; }
+    .checkbox-row input[type="checkbox"] {
+      width: 15px; height: 15px;
+      accent-color: var(--blue); cursor: pointer;
+    }
+    .checkbox-row label { font-size: 13px; color: var(--text-muted); cursor: pointer; }
+    .forgot-link { font-size: 13px; color: var(--blue); text-decoration: none; }
+    .forgot-link:hover { text-decoration: underline; }
+
+    .submit-btn {
+      width: 100%; padding: 13px;
+      background: var(--blue); color: #fff;
+      border: none; border-radius: var(--radius-sm);
+      font-size: 15px; font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .submit-btn:hover { background: #0C447C; }
+    .submit-btn:active { transform: scale(0.99); }
+    .submit-btn svg { width: 18px; height: 18px; }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 1.5rem 0; font-size: 12px; color: var(--text-hint);
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    .register-link {
+      text-align: center; font-size: 14px; color: var(--text-muted);
+    }
+    .register-link a {
+      color: var(--blue); text-decoration: none; font-weight: 500;
+    }
+    .register-link a:hover { text-decoration: underline; }
+
+    .secure-note {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      margin-top: 2rem; font-size: 12px; color: var(--text-hint);
+    }
+    .secure-note svg { width: 13px; height: 13px; }
+
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      body { grid-template-columns: 1fr; }
+      .left-panel { display: none; }
+      .right-panel { min-height: 100vh; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── LEFT BRANDING PANEL ── -->
+<div class="left-panel">
+  <a href="/" class="panel-logo">
+    <div class="panel-logo-icon">
+      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="2,15 7,9 11,12 18,4" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    StockPulse
+  </a>
+
+  <div class="panel-content">
+    <h2>Welcome back to the markets</h2>
+    <p>Sign in to check your portfolio, review alerts, and catch up on what moved while you were away.</p>
+
+    <div class="ticker-cards">
+      <div class="ticker-card">
+        <div class="ticker-left">
+          <div class="ticker-avatar">AAPL</div>
+          <div>
+            <div class="ticker-name">Apple Inc.</div>
+            <div class="ticker-full">NASDAQ: AAPL</div>
+          </div>
+        </div>
+        <div class="mini-spark">
+          <span style="height:40%;background:rgba(93,202,165,0.5)"></span>
+          <span style="height:55%;background:rgba(93,202,165,0.5)"></span>
+          <span style="height:45%;background:rgba(93,202,165,0.5)"></span>
+          <span style="height:70%;background:rgba(93,202,165,0.5)"></span>
+          <span style="height:60%;background:rgba(93,202,165,0.5)"></span>
+          <span style="height:85%;background:#5DCAA5"></span>
+        </div>
+        <div class="ticker-right">
+          <div class="ticker-price">$189.40</div>
+          <div class="ticker-change up">▲ +1.24%</div>
+        </div>
+      </div>
+
+      <div class="ticker-card">
+        <div class="ticker-left">
+          <div class="ticker-avatar">TSLA</div>
+          <div>
+            <div class="ticker-name">Tesla Inc.</div>
+            <div class="ticker-full">NASDAQ: TSLA</div>
+          </div>
+        </div>
+        <div class="mini-spark">
+          <span style="height:80%;background:rgba(240,153,123,0.5)"></span>
+          <span style="height:70%;background:rgba(240,153,123,0.5)"></span>
+          <span style="height:75%;background:rgba(240,153,123,0.5)"></span>
+          <span style="height:60%;background:rgba(240,153,123,0.5)"></span>
+          <span style="height:50%;background:rgba(240,153,123,0.5)"></span>
+          <span style="height:40%;background:#F0997B"></span>
+        </div>
+        <div class="ticker-right">
+          <div class="ticker-price">$242.10</div>
+          <div class="ticker-change down">▼ −0.87%</div>
+        </div>
+      </div>
+
+      <div class="ticker-card">
+        <div class="ticker-left">
+          <div class="ticker-avatar">MSFT</div>
+          <div>
+            <div class="ticker-name">Microsoft</div>
+            <div class="ticker-full">NASDAQ: MSFT</div>
+          </div>
+        </div>
+        <div class="mini-spark">
+          <span style="height:50%;background:rgba(93,202,165,0.5)"></span>
+          <span style="height:55%;background:rgba(93,202,165,0.5)"></span>
+          <span style="height:65%;background:rgba(93,202,165,0.5)"></span>
+          <span style="height:72%;background:rgba(93,202,165,0.5)"></span>
+          <span style="height:80%;background:rgba(93,202,165,0.5)"></span>
+          <span style="height:95%;background:#5DCAA5"></span>
+        </div>
+        <div class="ticker-right">
+          <div class="ticker-price">$415.72</div>
+          <div class="ticker-change up">▲ +0.63%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-footer">
+    &copy; 2026 StockPulse &mdash; Built for investors, by investors.
+  </div>
+</div>
+
+<!-- ── RIGHT FORM PANEL ── -->
+<div class="right-panel">
+  <div class="form-box">
+
+    <div class="form-header">
+      <div class="welcome-back">
+        <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="6" cy="6" r="5" fill="#1D9E75"/>
+          <polyline points="3.5,6 5.2,7.8 8.5,4.5" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Returning user
+      </div>
+      <h1>Sign in to your account</h1>
+      <p>Enter your credentials to access your dashboard and portfolio.</p>
+    </div>
+
+    {% if error %}
+    <div class="error-banner">
+      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="8" cy="8" r="6.5" stroke="#E24B4A" stroke-width="1.5"/>
+        <line x1="8" y1="5" x2="8" y2="8.5" stroke="#E24B4A" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="8" cy="11" r="0.8" fill="#E24B4A"/>
+      </svg>
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST" action="/login">
+
+      <!-- Username -->
+      <div class="form-group">
+        <label for="username">Username</label>
+        <div class="input-wrap">
+          <span class="input-icon">
+            <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="9" cy="6.5" r="3.5" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M2.5 16.5c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            placeholder="Enter your username"
+            required
+            autocomplete="username"
+            autofocus
+          />
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <span class="input-icon">
+            <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="8" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M6 8V6a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Enter your password"
+            required
+            autocomplete="current-password"
+          />
+          <button type="button" class="toggle-pass" onclick="togglePass()" aria-label="Show password">
+            <svg id="eye-icon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 9s2.8-5.5 7.5-5.5S16.5 9 16.5 9s-2.8 5.5-7.5 5.5S1.5 9 1.5 9z" stroke="currentColor" stroke-width="1.6"/>
+              <circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Remember me + Forgot -->
+      <div class="form-row">
+        <div class="checkbox-row">
+          <input type="checkbox" id="remember" name="remember"/>
+          <label for="remember">Remember me</label>
+        </div>
+        <a href="/forgot-password" class="forgot-link">Forgot password?</a>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="submit-btn">
+        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 9h12M10.5 5L15 9l-4.5 4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Sign in to StockPulse
+      </button>
+    </form>
+
+    <div class="divider">don't have an account?</div>
+
+    <div class="register-link">
+      <a href="/register">Create a free account →</a>
+    </div>
+
+    <div class="secure-note">
+      <svg viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6.5 1L2 3v4c0 2.8 2 5.2 4.5 6C9 11.2 11 8.8 11 6V3L6.5 1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+      </svg>
+      Secured with 256-bit SSL encryption
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function togglePass() {
+    const input = document.getElementById('password');
+    const isPass = input.type === 'password';
+    input.type = isPass ? 'text' : 'password';
+    const btn = input.nextElementSibling;
+    btn.style.color = isPass ? 'var(--blue)' : 'var(--text-hint)';
+  }
+</script>
+
+</body>
+</html>

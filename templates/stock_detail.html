@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ ticker }} Analysis — StockPulse</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #185FA5;
+      --blue-mid: #378ADD;
+      --blue-light: #E6F1FB;
+      --green: #1D9E75;
+      --green-light: #E1F5EE;
+      --red: #E24B4A;
+      --red-light: #FCEBEB;
+      --amber: #BA7517;
+      --amber-light: #FAEEDA;
+      --purple: #534AB7;
+      --purple-light: #EEEDFE;
+      --text: #1a1a2e;
+      --text-muted: #6b7280;
+      --text-hint: #9ca3af;
+      --bg: #f8f9fb;
+      --surface: #ffffff;
+      --border: rgba(0,0,0,0.08);
+      --radius: 14px;
+      --radius-sm: 8px;
+      --sidebar-w: 240px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; height: 100vh;
+      z-index: 50; padding: 1.5rem 1rem;
+    }
+    .sidebar-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px; color: var(--text);
+      text-decoration: none; padding: 0 0.5rem;
+      margin-bottom: 2rem;
+    }
+    .sidebar-logo-icon {
+      width: 32px; height: 32px; background: var(--blue);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sidebar-logo-icon svg { width: 18px; height: 18px; }
+
+    .sidebar-section-label {
+      font-size: 10px; font-weight: 600; color: var(--text-hint);
+      text-transform: uppercase; letter-spacing: 0.1em;
+      padding: 0 0.75rem; margin-bottom: 6px;
+    }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 2px; margin-bottom: 1.5rem; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: var(--radius-sm);
+      font-size: 14px; font-weight: 500; color: var(--text-muted);
+      text-decoration: none; cursor: pointer; border: none; background: none;
+      width: 100%; transition: background 0.15s, color 0.15s;
+    }
+    .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+    .nav-item:hover { background: var(--bg); color: var(--text); }
+    .nav-item.active { background: var(--blue-light); color: var(--blue); }
+
+    .sidebar-spacer { flex: 1; }
+    .sidebar-user {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 1.5rem;
+      border-top: 1px solid var(--border); margin: 0 -1rem;
+    }
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--blue-light);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600; color: var(--blue); flex-shrink: 0;
+    }
+    .user-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .user-role { font-size: 11px; color: var(--text-hint); }
+    .logout-btn {
+      margin-left: auto; background: none; border: none;
+      color: var(--text-hint); cursor: pointer; padding: 4px;
+      border-radius: 6px; transition: color 0.15s, background 0.15s;
+    }
+    .logout-btn:hover { color: var(--red); background: var(--red-light); }
+    .logout-btn svg { width: 16px; height: 16px; display: block; }
+
+    /* ── MAIN ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1; padding: 2rem 2.5rem;
+      max-width: 1100px;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px; border-radius: var(--radius-sm);
+      background: var(--surface); border: 1px solid var(--border);
+      font-size: 13px; font-weight: 500; color: var(--text-muted);
+      text-decoration: none; transition: all 0.15s;
+    }
+    .back-btn:hover { background: var(--bg); color: var(--text); }
+    .back-btn svg { width: 15px; height: 15px; }
+
+    .ticker-header { display: flex; align-items: center; gap: 14px; }
+    .ticker-badge {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: var(--blue-light);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: var(--blue);
+      letter-spacing: 0.02em;
+    }
+    .ticker-header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 26px; color: var(--text); line-height: 1;
+    }
+    .ticker-header p { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+
+    /* ── STATS GRID ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px; margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+    .stat-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 10px;
+    }
+    .stat-icon svg { width: 16px; height: 16px; }
+    .stat-label {
+      font-size: 11px; font-weight: 600; color: var(--text-hint);
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px;
+    }
+    .stat-val { font-size: 22px; font-weight: 600; color: var(--text); line-height: 1; }
+    .stat-sub { font-size: 12px; color: var(--text-hint); margin-top: 4px; }
+    .up   { color: var(--green); }
+    .down { color: var(--red); }
+
+    /* ── CHARTS ── */
+    .charts-section-title {
+      font-size: 16px; font-weight: 600; color: var(--text);
+      margin-bottom: 1rem;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: box-shadow 0.15s;
+    }
+    .chart-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.07); }
+    .chart-card.full-width { grid-column: 1 / -1; }
+
+    .chart-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .chart-title-row { display: flex; align-items: center; gap: 10px; }
+    .chart-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+    .chart-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .chart-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+    .chart-tag {
+      font-size: 11px; font-weight: 600; padding: 3px 10px;
+      border-radius: 100px;
+    }
+
+    .chart-body { padding: 1rem; }
+    .chart-body img {
+      width: 100%; height: auto;
+      border-radius: var(--radius-sm);
+      display: block;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .charts-grid { grid-template-columns: 1fr; }
+      .chart-card.full-width { grid-column: auto; }
+    }
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; padding: 1.5rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <a href="/" class="sidebar-logo">
+    <div class="sidebar-logo-icon">
+      <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="2,13 6,8 10,11 16,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    StockPulse
+  </a>
+
+  <div class="sidebar-section-label">Menu</div>
+  <nav class="sidebar-nav">
+    <a href="/dashboard" class="nav-item">
+      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="6" height="6" rx="1.5"/>
+        <rect x="10" y="2" width="6" height="6" rx="1.5"/>
+        <rect x="2" y="10" width="6" height="6" rx="1.5"/>
+        <rect x="10" y="10" width="6" height="6" rx="1.5"/>
+      </svg>
+      Dashboard
+    </a>
+    <a href="#" class="nav-item active">
+      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="2,13 6,8 10,11 16,3"/>
+      </svg>
+      Markets
+    </a>
+    <a href="#" class="nav-item">
+      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="9" cy="9" r="7"/>
+        <polyline points="9,5.5 9,9 11.5,11"/>
+      </svg>
+      Alerts
+    </a>
+    <a href="#" class="nav-item">
+      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="3" width="14" height="12" rx="2"/>
+        <line x1="6" y1="7" x2="12" y2="7"/>
+        <line x1="6" y1="10" x2="10" y2="10"/>
+      </svg>
+      News
+    </a>
+    <a href="#" class="nav-item">
+      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="9" cy="7" r="3.5"/>
+        <path d="M2.5 16c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5"/>
+      </svg>
+      Profile
+    </a>
+  </nav>
+
+  <div class="sidebar-spacer"></div>
+
+  <div class="sidebar-user">
+    <div class="user-avatar">{{ session['username'][:2] | upper }}</div>
+    <div>
+      <div class="user-name">{{ session['username'] }}</div>
+      <div class="user-role">Investor</div>
+    </div>
+    <a href="/logout" class="logout-btn" title="Logout">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/>
+        <polyline points="10,5 13,8 10,11"/>
+        <line x1="13" y1="8" x2="5" y2="8"/>
+      </svg>
+    </a>
+  </div>
+</aside>
+
+<!-- ── MAIN CONTENT ── -->
+<main class="main">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <a href="/dashboard" class="back-btn">
+        <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+          <polyline points="9,3 4,7.5 9,12"/>
+        </svg>
+        Back to Dashboard
+      </a>
+      <div class="ticker-header">
+        <div class="ticker-badge">{{ ticker[:4] }}</div>
+        <div>
+          <h1>{{ ticker }}</h1>
+          <p>Stock Analysis &amp; Charts</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--blue-light)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="#185FA5" stroke-width="1.8" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+          <line x1="8" y1="2" x2="8" y2="14"/>
+          <path d="M5 5h4.5a2.5 2.5 0 010 5H5"/>
+          <path d="M5 4h4"/>
+        </svg>
+      </div>
+      <div class="stat-label">Current Price</div>
+      <div class="stat-val">{{ stats.current_price }}</div>
+      <div class="stat-sub">Latest close</div>
+    </div>
+
+    <div class="stat-card">
+      {% set ret = stats["7d_return"] | float %}
+      <div class="stat-icon" style="background:{{ 'var(--green-light)' if ret >= 0 else 'var(--red-light)' }}">
+        <svg viewBox="0 0 16 16" fill="none" stroke="{{ '#1D9E75' if ret >= 0 else '#E24B4A' }}" stroke-width="1.8" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+          {% if ret >= 0 %}
+          <polyline points="2,12 6,7 9,10 14,4"/>
+          {% else %}
+          <polyline points="2,4 6,9 9,6 14,12"/>
+          {% endif %}
+        </svg>
+      </div>
+      <div class="stat-label">7-Day Return</div>
+      <div class="stat-val {{ 'up' if ret >= 0 else 'down' }}">
+        {{ '+' if ret >= 0 else '' }}{{ stats["7d_return"] }}%
+      </div>
+      <div class="stat-sub">Past 7 days</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--amber-light)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="#BA7517" stroke-width="1.8" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 2v4M8 10v4M2 8h4M10 8h4"/>
+          <circle cx="8" cy="8" r="2.5"/>
+        </svg>
+      </div>
+      <div class="stat-label">Volatility</div>
+      <div class="stat-val">{{ stats.volatility }}%</div>
+      <div class="stat-sub">Price std deviation</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--purple-light)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="#534AB7" stroke-width="1.8" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="9" width="3" height="5" rx="1"/>
+          <rect x="6.5" y="5" width="3" height="9" rx="1"/>
+          <rect x="11" y="2" width="3" height="12" rx="1"/>
+        </svg>
+      </div>
+      <div class="stat-label">Avg Volume</div>
+      <div class="stat-val" style="font-size:18px;">{{ stats.avg_volume }}</div>
+      <div class="stat-sub">Daily average</div>
+    </div>
+  </div>
+
+  <!-- Signal -->
+<div class="stat-card" style="margin-bottom: 2rem; display:flex; align-items:center; justify-content:space-between;">
+  <div>
+    <div class="stat-label">Market Signal</div>
+    <div class="stat-val" style="font-size:20px;
+      color:
+      {% if 'Bullish' in signal %} var(--green)
+      {% elif 'Bearish' in signal %} var(--red)
+      {% else %} var(--text)
+      {% endif %};">
+      {{ signal }}
+    </div>
+    <div class="stat-sub">Based on MA7 vs MA21 crossover</div>
+  </div>
+  <div class="stat-icon" style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    background:
+    {% if 'Bullish' in signal %} var(--green-light)
+    {% elif 'Bearish' in signal %} var(--red-light)
+    {% else %} var(--blue-light)
+    {% endif %};">
+    <svg viewBox="0 0 16 16" fill="none" stroke-width="1.8" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg"
+      stroke="{% if 'Bullish' in signal %}#1D9E75{% elif 'Bearish' in signal %}#E24B4A{% else %}#185FA5{% endif %}">
+      {% if 'Bullish' in signal %}
+        <polyline points="2,12 6,7 9,10 14,4"/>
+      {% elif 'Bearish' in signal %}
+        <polyline points="2,4 6,9 9,6 14,12"/>
+      {% else %}
+        <line x1="2" y1="8" x2="14" y2="8"/>
+      {% endif %}
+    </svg>
+  </div>
+</div>
+
+
+  <!-- Charts -->
+  <div class="charts-section-title">Charts &amp; Technical Analysis</div>
+
+  <div class="charts-grid">
+
+    <!-- Price chart — full width -->
+    <div class="chart-card full-width">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title-row">
+            <div class="chart-dot" style="background:var(--blue)"></div>
+            <div class="chart-title">Closing Price</div>
+          </div>
+          <div class="chart-subtitle">Historical closing price over time</div>
+        </div>
+        <div class="chart-tag" style="background:var(--blue-light);color:var(--blue);">Price</div>
+      </div>
+      <div class="chart-body">
+        <img src="{{ url_for('static', filename=close_chart) }}" alt="Closing Price Chart"/>
+      </div>
+    </div>
+
+    <!-- Moving Average -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title-row">
+            <div class="chart-dot" style="background:var(--green)"></div>
+            <div class="chart-title">Moving Averages</div>
+          </div>
+          <div class="chart-subtitle">MA20 &amp; MA50 trend lines</div>
+        </div>
+        <div class="chart-tag" style="background:var(--green-light);color:var(--green);">Trend</div>
+      </div>
+      <div class="chart-body">
+        <img src="{{ url_for('static', filename=ma_chart) }}" alt="Moving Average Chart"/>
+      </div>
+    </div>
+
+    <!-- Returns -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title-row">
+            <div class="chart-dot" style="background:var(--amber)"></div>
+            <div class="chart-title">Daily Returns</div>
+          </div>
+          <div class="chart-subtitle">Day-over-day percentage change</div>
+        </div>
+        <div class="chart-tag" style="background:var(--amber-light);color:var(--amber);">Returns</div>
+      </div>
+      <div class="chart-body">
+        <img src="{{ url_for('static', filename=returns_chart) }}" alt="Returns Chart"/>
+      </div>
+    </div>
+
+    <!-- Volume — full width -->
+    <div class="chart-card full-width">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title-row">
+            <div class="chart-dot" style="background:var(--purple)"></div>
+            <div class="chart-title">Volume</div>
+          </div>
+          <div class="chart-subtitle">Daily trading volume over time</div>
+        </div>
+        <div class="chart-tag" style="background:var(--purple-light);color:var(--purple);">Volume</div>
+      </div>
+      <div class="chart-body">
+        <img src="{{ url_for('static', filename=volume_chart) }}" alt="Volume Chart"/>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register — StockPulse</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #185FA5;
+      --blue-mid: #378ADD;
+      --blue-light: #E6F1FB;
+      --green: #1D9E75;
+      --green-light: #E1F5EE;
+      --text: #1a1a2e;
+      --text-muted: #6b7280;
+      --text-hint: #9ca3af;
+      --bg: #f8f9fb;
+      --surface: #ffffff;
+      --border: rgba(0,0,0,0.1);
+      --border-focus: #185FA5;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --danger: #E24B4A;
+      --danger-light: #FCEBEB;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* ── LEFT PANEL ── */
+    .left-panel {
+      background: var(--blue);
+      padding: 3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      top: -100px; right: -100px;
+    }
+    .left-panel::after {
+      content: '';
+      position: absolute;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      bottom: -80px; left: -60px;
+    }
+
+    .panel-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px; color: #fff;
+      text-decoration: none; position: relative; z-index: 1;
+    }
+    .panel-logo-icon {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .panel-logo-icon svg { width: 20px; height: 20px; }
+
+    .panel-content { position: relative; z-index: 1; }
+
+    .panel-content h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 34px; color: #fff;
+      line-height: 1.2; margin-bottom: 1rem;
+    }
+    .panel-content p {
+      font-size: 15px; color: rgba(255,255,255,0.7);
+      line-height: 1.7; margin-bottom: 2rem;
+    }
+
+    .perks { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+    .perks li {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 14px; color: rgba(255,255,255,0.9);
+    }
+    .perk-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .perk-icon svg { width: 16px; height: 16px; }
+
+    .panel-footer {
+      font-size: 13px; color: rgba(255,255,255,0.5);
+      position: relative; z-index: 1;
+    }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel {
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 3rem 2rem;
+      background: var(--surface);
+    }
+
+    .form-box { width: 100%; max-width: 400px; }
+
+    .form-header { margin-bottom: 2rem; }
+    .form-header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px; color: var(--text);
+      margin-bottom: 6px;
+    }
+    .form-header p { font-size: 14px; color: var(--text-muted); }
+
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label {
+      display: block; font-size: 13px; font-weight: 500;
+      color: var(--text); margin-bottom: 6px;
+    }
+
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      width: 18px; height: 18px; color: var(--text-hint);
+      pointer-events: none;
+    }
+    .input-icon svg { width: 18px; height: 18px; }
+
+    .form-group input {
+      width: 100%;
+      padding: 11px 14px 11px 42px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 14px; font-family: 'DM Sans', sans-serif;
+      color: var(--text); background: var(--bg);
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+    }
+    .form-group input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(24,95,165,0.1);
+      background: #fff;
+    }
+    .form-group input::placeholder { color: var(--text-hint); }
+
+    .toggle-pass {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: var(--text-hint); padding: 0;
+    }
+    .toggle-pass svg { width: 18px; height: 18px; display: block; }
+
+    /* password strength */
+    .strength-bar { display: flex; gap: 4px; margin-top: 8px; }
+    .strength-bar span {
+      height: 3px; flex: 1; border-radius: 10px;
+      background: var(--border); transition: background 0.3s;
+    }
+    .strength-label { font-size: 11px; color: var(--text-hint); margin-top: 4px; }
+
+    .form-hint { font-size: 12px; color: var(--text-hint); margin-top: 5px; }
+
+    /* terms checkbox */
+    .checkbox-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+    .checkbox-row input[type="checkbox"] {
+      margin-top: 2px; width: 16px; height: 16px;
+      accent-color: var(--blue); flex-shrink: 0; cursor: pointer;
+    }
+    .checkbox-row label {
+      font-size: 13px; color: var(--text-muted); line-height: 1.5; cursor: pointer;
+    }
+    .checkbox-row a { color: var(--blue); text-decoration: none; }
+    .checkbox-row a:hover { text-decoration: underline; }
+
+    .submit-btn {
+      width: 100%; padding: 13px;
+      background: var(--blue); color: #fff;
+      border: none; border-radius: var(--radius-sm);
+      font-size: 15px; font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer; transition: background 0.15s, transform 0.1s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .submit-btn:hover { background: #0C447C; }
+    .submit-btn:active { transform: scale(0.99); }
+    .submit-btn svg { width: 18px; height: 18px; }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 1.5rem 0; font-size: 12px; color: var(--text-hint);
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    .login-link {
+      text-align: center; font-size: 14px; color: var(--text-muted);
+    }
+    .login-link a {
+      color: var(--blue); text-decoration: none; font-weight: 500;
+    }
+    .login-link a:hover { text-decoration: underline; }
+
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      body { grid-template-columns: 1fr; }
+      .left-panel { display: none; }
+      .right-panel { min-height: 100vh; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LEFT DECORATIVE PANEL -->
+<div class="left-panel">
+  <a href="/" class="panel-logo">
+    <div class="panel-logo-icon">
+      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="2,15 7,9 11,12 18,4" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    StockPulse
+  </a>
+
+  <div class="panel-content">
+    <h2>Start your investing journey today</h2>
+    <p>Join 250,000+ investors who track, analyze, and grow their wealth with StockPulse.</p>
+    <ul class="perks">
+      <li>
+        <div class="perk-icon">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="2,12 6,7 9,10 14,4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        Real-time stock prices &amp; charts
+      </li>
+      <li>
+        <div class="perk-icon">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="8" width="3" height="6" rx="1" fill="white"/>
+            <rect x="6.5" y="5" width="3" height="9" rx="1" fill="white"/>
+            <rect x="11" y="2" width="3" height="12" rx="1" fill="white"/>
+          </svg>
+        </div>
+        Full portfolio analytics dashboard
+      </li>
+      <li>
+        <div class="perk-icon">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="8" cy="8" r="5.5" stroke="white" stroke-width="1.8"/>
+            <polyline points="8,5 8,8 10,10" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        Price alerts &amp; custom notifications
+      </li>
+      <li>
+        <div class="perk-icon">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 1.5L9.8 5.8H14.5L10.7 8.7L12.2 13L8 10.2L3.8 13L5.3 8.7L1.5 5.8H6.2Z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        AI-powered market insights
+      </li>
+    </ul>
+  </div>
+
+  <div class="panel-footer">
+    &copy; 2026 StockPulse &mdash; Built for investors, by investors.
+  </div>
+</div>
+
+<!-- RIGHT FORM PANEL -->
+<div class="right-panel">
+  <div class="form-box">
+    <div class="form-header">
+      <h1>Create your account</h1>
+      <p>Fill in the details below to get started for free.</p>
+    </div>
+
+    <form method="POST" action="/register" id="registerForm">
+    
+
+      <!-- Username -->
+      <div class="form-group">
+        <label for="username">Username</label>
+        <div class="input-wrap">
+          <span class="input-icon">
+            <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="9" cy="6.5" r="3.5" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M2.5 16.5c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            placeholder="e.g. johndoe"
+            required
+            autocomplete="username"
+            minlength="3"
+          />
+        </div>
+        <div class="form-hint">At least 3 characters, no spaces.</div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <span class="input-icon">
+            <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="8" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M6 8V6a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Create a strong password"
+            required
+            minlength="6"
+            oninput="checkStrength(this.value)"
+          />
+          <button type="button" class="toggle-pass" onclick="togglePass('password', this)" aria-label="Show password">
+            <svg id="eye-password" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 9s2.8-5.5 7.5-5.5S16.5 9 16.5 9s-2.8 5.5-7.5 5.5S1.5 9 1.5 9z" stroke="currentColor" stroke-width="1.6"/>
+              <circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.6"/>
+            </svg>
+          </button>
+        </div>
+        <div class="strength-bar">
+          <span id="s1"></span><span id="s2"></span><span id="s3"></span><span id="s4"></span>
+        </div>
+        <div class="strength-label" id="strength-label">Enter a password</div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="form-group">
+        <label for="password2">Confirm password</label>
+        <div class="input-wrap">
+          <span class="input-icon">
+            <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 9l3.5 3.5L14 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="2" y="2" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.6"/>
+            </svg>
+          </span>
+          <input
+            type="password"
+            id="password2"
+            name="password2"
+            placeholder="Re-enter your password"
+            required
+            oninput="checkMatch()"
+          />
+          <button type="button" class="toggle-pass" onclick="togglePass('password2', this)" aria-label="Show confirm password">
+            <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 9s2.8-5.5 7.5-5.5S16.5 9 16.5 9s-2.8 5.5-7.5 5.5S1.5 9 1.5 9z" stroke="currentColor" stroke-width="1.6"/>
+              <circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.6"/>
+            </svg>
+          </button>
+        </div>
+        <div class="form-hint" id="match-hint"></div>
+      </div>
+
+      <!-- Terms -->
+      <div class="checkbox-row">
+        <input type="checkbox" id="terms" name="terms" required/>
+        <label for="terms">
+          I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+        </label>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="submit-btn">
+        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 2v10M5 8l4 4 4-4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M3 15h12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        Create account
+      </button>
+    </form>
+
+    <div class="divider">already have an account?</div>
+    <div class="login-link">
+      <a href="/login">Sign in to StockPulse →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  function togglePass(id, btn) {
+    const input = document.getElementById(id);
+    const isPass = input.type === 'password';
+    input.type = isPass ? 'text' : 'password';
+    btn.style.color = isPass ? 'var(--blue)' : 'var(--text-hint)';
+  }
+
+  function checkStrength(val) {
+    const bars = [document.getElementById('s1'), document.getElementById('s2'),
+                  document.getElementById('s3'), document.getElementById('s4')];
+    const label = document.getElementById('strength-label');
+    const colors = ['#E24B4A','#BA7517','#378ADD','#1D9E75'];
+    const labels = ['Weak','Fair','Good','Strong'];
+    let score = 0;
+    if (val.length >= 6) score++;
+    if (val.length >= 10) score++;
+    if (/[A-Z]/.test(val) && /[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    bars.forEach((b, i) => {
+      b.style.background = i < score ? colors[score - 1] : 'var(--border)';
+    });
+    label.textContent = val.length === 0 ? 'Enter a password' : labels[score - 1] || 'Weak';
+    label.style.color = val.length === 0 ? 'var(--text-hint)' : colors[score - 1];
+  }
+
+  function checkMatch() {
+    const p1 = document.getElementById('password').value;
+    const p2 = document.getElementById('password2').value;
+    const hint = document.getElementById('match-hint');
+    if (!p2) { hint.textContent = ''; return; }
+    if (p1 === p2) {
+      hint.textContent = '✓ Passwords match';
+      hint.style.color = 'var(--green)';
+    } else {
+      hint.textContent = '✗ Passwords do not match';
+      hint.style.color = 'var(--danger)';
+    }
+  }
+</script>
+
+</body>
+</html>
